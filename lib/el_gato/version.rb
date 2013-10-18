@@ -1,0 +1,3 @@
+module ElGato
+  VERSION = "0.0.1"
+end
