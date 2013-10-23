@@ -17,24 +17,24 @@ module ElGato
       end
     end
 
-    attr_reader :games
+    attr_reader :waiting_players
 
     def initialize
       @games = []
+      @waiting_players = []
     end
 
     def add_player player_id
-      if @games.empty?
-        @games << Game.new
-      end
+      @waiting_players << BareGato::Player.new(player_id)
 
-      result = @games.last.add_player(player_id)
-      unless result
-        @games << Game.new
-        result = @games.last.add_player player_id
+      if @waiting_players.size == 2
+        @games << BareGato::Game.new(players: @waiting_players.dup)
+        @waiting_players.clear
       end
+    end
 
-      !!result
+    def games player_id
+      @games.find_all { |game| game.includes_player? BareGato::Player.new player_id }
     end
 
   end
