@@ -1,20 +1,19 @@
 require 'spec_helper'
 
 describe ElGato::GameServer do
-  it 'should handle multiple games' do
-    subject.add_player 'P1'
-    subject.add_player 'P2'
-    subject.add_player 'P3'
+  it 'should allow only 1 game per player' do
+    expect(subject.play('P1')).to eq({ status: :queued })
+    expect(subject.games('P1')).to eq []
 
-    expect(subject.waiting_players).to have(1).item
+    expect(subject.play('P1')).to eq({ status: :queued })
+    expect(subject.games('P1')).to eq []
+  end
 
-    expect(subject.games 'P1').to eq subject.games('P2')
-    expect(subject.games 'P3').to_not eq subject.games('P2')
-    expect(subject.games 'P3').to_not eq subject.games('P1')
-
-    expect(subject.games 'P1').to have(1).items
-    expect(subject.games 'P2').to have(1).items
-    expect(subject.games 'P3').to have(0).items
+  it 'should allow a player returning to the active game' do
+    expect(subject.play('P1')).to eq({ status: :queued })
+    expect(subject.play('P2')[:status]).to eq :ready
+    expect(subject.play('P1')).to eq subject.play 'P2'
+    expect(subject.play('P2')[:id]).to_not be_nil
   end
 end
 
